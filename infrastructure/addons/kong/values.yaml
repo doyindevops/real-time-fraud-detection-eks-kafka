@@ -1,0 +1,27 @@
+ingressController:
+  enabled: true
+
+env:
+  database: "off"
+  proxy_access_log: /dev/stdout
+  proxy_error_log: /dev/stderr
+
+proxy:
+  type: NodePort
+  http:
+    enabled: true
+    servicePort: 80
+  tls:
+    enabled: false
+
+admin:
+  enabled: false
+
+manager:
+  enabled: false
+
+portal:
+  enabled: false
+
+portalapi:
+  enabled: false

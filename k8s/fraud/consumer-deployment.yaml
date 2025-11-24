@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-consumer
+  namespace: fraud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fraud-consumer
+  template:
+    metadata:
+      labels:
+        app: fraud-consumer
+    spec:
+      containers:
+        - name: fraud-consumer
+          image: python:3.10-slim
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install kafka-python && \
+              python - << 'EOF'
+              import os, json
+              from kafka import KafkaConsumer
+
+              bootstrap = os.environ["KAFKA_BOOTSTRAP_SERVERS"]
+              topic = os.environ["KAFKA_TOPIC"]
+
+              consumer = KafkaConsumer(
+                  topic,
+                  bootstrap_servers=[bootstrap],
+                  value_deserializer=lambda m: json.loads(m.decode("utf-8")),
+                  auto_offset_reset="earliest",
+                  enable_auto_commit=True,
+              )
+
+              print(f"Consumer connected to {bootstrap}, topic={topic}")
+              for msg in consumer:
+                  print("Consumed:", msg.value, flush=True)
+              EOF
+          envFrom:
+            - configMapRef:
+                name: fraud-config

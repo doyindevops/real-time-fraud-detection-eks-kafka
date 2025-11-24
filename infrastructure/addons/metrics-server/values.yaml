@@ -1,0 +1,9 @@
+args:
+  - --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP
+  - --kubelet-insecure-tls
+
+metrics:
+  enabled: true
+
+service:
+  port: 443

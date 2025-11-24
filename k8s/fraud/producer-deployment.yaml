@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-producer
+  namespace: fraud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fraud-producer
+  template:
+    metadata:
+      labels:
+        app: fraud-producer
+    spec:
+      containers:
+        - name: fraud-producer
+          image: python:3.10-slim
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install kafka-python && \
+              python - << 'EOF'
+              import os, time, json, random
+              from kafka import KafkaProducer
+
+              bootstrap = os.environ["KAFKA_BOOTSTRAP_SERVERS"]
+              topic = os.environ["KAFKA_TOPIC"]
+
+              producer = KafkaProducer(
+                  bootstrap_servers=[bootstrap],
+                  value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+              )
+
+              print(f"Producer connected to {bootstrap}, topic={topic}")
+              while True:
+                  msg = {
+                      "transaction_id": random.randint(1, 999999),
+                      "amount": round(random.uniform(1, 4000), 2),
+                  }
+                  producer.send(topic, value=msg)
+                  print("Produced:", msg, flush=True)
+                  time.sleep(3)
+              EOF
+          envFrom:
+            - configMapRef:
+                name: fraud-config

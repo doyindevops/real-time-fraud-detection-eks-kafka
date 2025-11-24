@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-create-topic-fraud
+  namespace: kafka
+spec:
+  template:
+    spec:
+      containers:
+        - name: kafka-topic-creator
+          image: public.ecr.aws/bitnami/kafka:4.1.0-debian-12-r0
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "Creating topic fraud-transactions if it does not exist..."
+              kafka-topics.sh --create \
+                --topic fraud-transactions \
+                --bootstrap-server kafka.kafka.svc.cluster.local:9092 \
+                --replication-factor 1 \
+                --partitions 1 || \
+              echo "Topic already exists or creation failed."
+      restartPolicy: OnFailure

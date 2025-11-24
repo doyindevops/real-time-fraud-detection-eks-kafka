@@ -1,0 +1,45 @@
+# Keep this stack small & cheap
+grafana:
+  enabled: true
+  service:
+    type: ClusterIP   # no LoadBalancer, no extra AWS cost
+  adminPassword: "admin"   # change later if you want
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+# Turn off a few extras to save resources (you can tune later)
+kubeScheduler:
+  enabled: true
+kubeControllerManager:
+  enabled: true
+kubeProxy:
+  enabled: true
+kubeEtcd:
+  enabled: false

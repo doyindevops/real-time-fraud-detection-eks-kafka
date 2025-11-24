@@ -1,0 +1,69 @@
+global:
+  security:
+    allowInsecureImages: true
+
+image:
+  registry: public.ecr.aws
+  repository: bitnami/kafka
+  tag: 4.1.0-debian-12-r0
+  pullPolicy: IfNotPresent
+
+kraft:
+  enabled: true
+
+# IMPORTANT: force all listeners to PLAINTEXT so Python clients can connect without SASL
+listeners:
+  client:
+    containerPort: 9092
+    protocol: PLAINTEXT
+    name: CLIENT
+    sslClientAuth: ""
+  controller:
+    containerPort: 9093
+    protocol: PLAINTEXT
+    name: CONTROLLER
+    sslClientAuth: ""
+  interbroker:
+    containerPort: 9094
+    protocol: PLAINTEXT
+    name: INTERNAL
+    sslClientAuth: ""
+  external:
+    containerPort: 9095
+    protocol: PLAINTEXT
+    name: EXTERNAL
+    sslClientAuth: ""
+
+controller:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+broker:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+persistence:
+  enabled: true
+  size: 8Gi
+
+service:
+  type: ClusterIP
+
+metrics:
+  jmx:
+    enabled: false
+  kafka:
+    enabled: false
+
